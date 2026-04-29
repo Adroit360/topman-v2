@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod/v4";
 import { deliveryStatusOptions, type DeliveryStatusValue } from "./order";
 
 export const orderAdminFieldNames = ["deliveryStatus", "adminNotes"] as const;

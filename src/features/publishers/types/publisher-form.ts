@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod/v4";
 import type { PublisherSummary } from "@/features/catalog";
 
 export const publisherFieldNames = ["name", "reference", "author"] as const;
