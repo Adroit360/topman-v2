@@ -1,0 +1,76 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1773239425693,
+      "tag": "0000_common_inhumans",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1773245842223,
+      "tag": "0001_aromatic_vulture",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773250633685,
+      "tag": "0002_late_shinko_yamashiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1776182400000,
+      "tag": "0003_upload_book_list",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1776278692415,
+      "tag": "0004_cloudy_ronan",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1776700800000,
+      "tag": "0005_orders_admin_notes",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1776816000000,
+      "tag": "0006_soft_delete_publishers",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1776819600000,
+      "tag": "0007_soft_delete_books",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1776936239125,
+      "tag": "0008_list_order_notes",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1776946049451,
+      "tag": "0009_broad_bastion",
+      "breakpoints": true
+    }
+  ]
+}

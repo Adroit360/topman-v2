@@ -1,0 +1,11 @@
+
+> topman@0.1.0 build /Users/mensah/Desktop/codeBase/Adroit/topman-v2/topman
+> next build
+
+▲ Next.js 16.2.1 (Turbopack)
+- Environments: .env
+- Experiments (use with caution):
+  · serverActions
+
+  Creating an optimized production build ...
+ ELIFECYCLE  Command failed with exit code 1.

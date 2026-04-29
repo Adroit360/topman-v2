@@ -1,0 +1,7 @@
+
+> topman@0.1.0 db:migrate /Users/mensah/Desktop/codeBase/Adroit/topman-v2/topman
+> drizzle-kit migrate
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/Users/mensah/Desktop/codeBase/Adroit/topman-v2/topman/drizzle.config.ts'
+[⣷] applying migrations...[2K[1G[⣯] applying migrations...[2K[1G[⣟] applying migrations...[2K[1G[⡿] applying migrations...[2K[1G[⢿] applying migrations...[2K[1G[⣻] applying migrations...[2K[1G[⣽] applying migrations...[2K[1G[⣷] applying migrations...[2K[1G[⣯] applying migrations...[2K[1G[⣟] applying migrations...[2K[1G[⡿] applying migrations...[2K[1G[⢿] applying migrations...[2K[1G[⣻] applying migrations...[2K[1G[⣽] applying migrations...[2K[1G[⣷] applying migrations...[2K[1G[⣯] applying migrations...[2K[1G[⣟] applying migrations...[2K[1G[⡿] applying migrations...[2K[1G[⢿] applying migrations...[2K[1G[⣻] applying migrations...[2K[1G[⣽] applying migrations...[2K[1G[⣷] applying migrations...[2K[1G[⣯] applying migrations...[2K[1G[⣟] applying migrations...[2K[1G[⡿] applying migrations...[2K[1G[⢿] applying migrations...[2K[1G[⣻] applying migrations...[2K[1G[⣽] applying migrations...[2K[1G[⣷] applying migrations...[2K[1G[⣷] applying migrations... ELIFECYCLE  Command failed with exit code 1.

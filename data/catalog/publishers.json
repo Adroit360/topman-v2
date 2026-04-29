@@ -1,0 +1,247 @@
+[
+  {
+    "_id": {
+      "$oid": "62f3930d89497709fd5b7f32"
+    },
+    "name": "kwadwoan publishing",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3a07b4b7fcdcb0b5e74b7"
+    },
+    "name": "york press",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3a2f94b7fcdcb0b5e74b9"
+    },
+    "name": "nnf books",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3a79a4b7fcdcb0b5e74bb"
+    },
+    "name": "masterman publications",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3aea94b7fcdcb0b5e74bd"
+    },
+    "name": "reddot vestel",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3b10d4b7fcdcb0b5e74bf"
+    },
+    "name": "vestel publications",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3b3d44b7fcdcb0b5e74c1"
+    },
+    "name": "badu nkansah publications",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3b6f54b7fcdcb0b5e74c3"
+    },
+    "name": "victory series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3bf9743114c32a93cbcfa"
+    },
+    "name": "sakant series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3c04c43114c32a93cbcfc"
+    },
+    "name": "afrafra series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3cb5f43114c32a93cbcfe"
+    },
+    "name": "calculus series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3cbbf43114c32a93cbd00"
+    },
+    "name": "orion basic",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3cc1043114c32a93cbd02"
+    },
+    "name": "execellence series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3cd7e43114c32a93cbd04"
+    },
+    "name": "eps publishing",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3ce8143114c32a93cbd06"
+    },
+    "name": "golden books",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3cf5443114c32a93cbd08"
+    },
+    "name": "ebs series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3cffd43114c32a93cbd0a"
+    },
+    "name": "adwinsa publication",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d0bf43114c32a93cbd0c"
+    },
+    "name": "winmat publishers",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d19743114c32a93cbd0e"
+    },
+    "name": "don series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d28243114c32a93cbd10"
+    },
+    "name": "e k nyarko",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d32443114c32a93cbd12"
+    },
+    "name": "mighty hand publication",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d3fd43114c32a93cbd14"
+    },
+    "name": "ict solution",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d5c59d9145a131aaf5e1"
+    },
+    "name": "lantern publication",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d6a69d9145a131aaf5e3"
+    },
+    "name": "perfect series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d7c49d9145a131aaf5e5"
+    },
+    "name": "afram books",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d8299d9145a131aaf5e7"
+    },
+    "name": "bpl limited",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d8dd9d9145a131aaf5e9"
+    },
+    "name": "bright future",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3d9c69d9145a131aaf5eb"
+    },
+    "name": "prof and figures",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3da619d9145a131aaf5ed"
+    },
+    "name": "alpha books",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f3dbf19d9145a131aaf5ef"
+    },
+    "name": "other publishers",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f94f97a070f5f3c07a2a1c"
+    },
+    "name": "a+ series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f950b4a070f5f3c07a2a1e"
+    },
+    "name": "aki-ola series",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62f9586f1c733efdf1921d61"
+    },
+    "name": "literature books",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "62fcd1a1aa332ddd9e9a7a39"
+    },
+    "name": "stationery",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6312292ee1fe16ef06e9a1e9"
+    },
+    "name": "hot series",
+    "__v": 0
+  }
+]
