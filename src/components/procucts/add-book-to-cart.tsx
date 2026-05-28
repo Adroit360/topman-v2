@@ -5,21 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/features/cart";
 import { useState } from "react";
 import type { BookTypes } from "@/features/home/types/book-types";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 
 export default function AddBookToCart({ book }: { book: BookTypes }) {
-  const { addToCart, getCartItemQuantity, removeFromCart, updateQuantity } =
-    useCart();
+  const { addToCart, getCartItemQuantity, removeFromCart, updateQuantity } = useCart();
   const currentQuantity = getCartItemQuantity(book.id);
 
   const [open, setOpen] = useState(false);
@@ -59,23 +50,15 @@ export default function AddBookToCart({ book }: { book: BookTypes }) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="w-full" disabled={!book.isAvailable}>
-          <ShoppingBag className="me-2" />
-          {book.isAvailable
-            ? currentQuantity > 0
-              ? "Update Cart"
-              : "Add to Cart"
-            : "Out of Stock"}
+        <Button className="sm:h-10 w-full rounded-full bg-orange-600 text-xs sm:text-sm font-medium text-white shadow-none transition duration-300 hover:bg-orange-500 disabled:bg-slate-200 disabled:text-slate-500" disabled={!book.isAvailable}>
+          <ShoppingBag className="me-2 size-3 sm:size-4" />
+          {book.isAvailable ? (currentQuantity > 0 ? "Update Cart" : "Add to Cart") : "Out of Stock"}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{book.title}</DialogTitle>
-          <DialogDescription>
-            {currentQuantity > 0
-              ? "Update the quantity of this book in your cart."
-              : "Add this book to your cart."}
-          </DialogDescription>
+          <DialogDescription>{currentQuantity > 0 ? "Update the quantity of this book in your cart." : "Add this book to your cart."}</DialogDescription>
         </DialogHeader>
         <Field>
           <FieldLabel htmlFor="quantity">Quantity</FieldLabel>
@@ -86,9 +69,7 @@ export default function AddBookToCart({ book }: { book: BookTypes }) {
             value={quantity}
             onChange={(event) => {
               const nextQuantity = Number(event.target.value);
-              setQuantity(
-                Number.isNaN(nextQuantity) ? 1 : Math.max(1, nextQuantity),
-              );
+              setQuantity(Number.isNaN(nextQuantity) ? 1 : Math.max(1, nextQuantity));
             }}
           />
         </Field>
@@ -101,9 +82,7 @@ export default function AddBookToCart({ book }: { book: BookTypes }) {
               Remove
             </Button>
           ) : null}
-          <Button onClick={handleSave}>
-            {currentQuantity > 0 ? "Save changes" : "Add to cart"}
-          </Button>
+          <Button onClick={handleSave}>{currentQuantity > 0 ? "Save changes" : "Add to cart"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

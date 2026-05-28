@@ -35,11 +35,7 @@ export const QuoteIntroGate = ({ quotes, children }: QuoteIntroGateProps) => {
         {children}
       </motion.div>
 
-      <AnimatePresence onExitComplete={completeExit}>
-        {showIntro && activeQuote ? (
-          <QuoteIntroScreen key={activeQuote.text} quote={activeQuote} />
-        ) : null}
-      </AnimatePresence>
+      <AnimatePresence onExitComplete={completeExit}>{showIntro && activeQuote ? <QuoteIntroScreen key={activeQuote.text} quote={activeQuote} /> : null}</AnimatePresence>
     </div>
   );
 };

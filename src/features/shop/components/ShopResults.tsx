@@ -30,13 +30,8 @@ export const ShopResults = ({ books, onResetFilters }: ShopResultsProps) => {
   if (books.length === 0) {
     return (
       <div className="flex min-h-80 flex-col items-center justify-center rounded-[2rem] border border-dashed border-border bg-muted/30 px-6 py-14 text-center">
-        <h2 className="text-2xl font-semibold tracking-[-0.04em] text-foreground">
-          No books match these filters
-        </h2>
-        <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
-          Try clearing some filters or using a broader search keyword to see
-          more results.
-        </p>
+        <h2 className="text-2xl font-semibold tracking-[-0.04em] text-foreground">No books match these filters</h2>
+        <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">Try clearing some filters or using a broader search keyword to see more results.</p>
         <Button className="mt-6 rounded-full" onClick={onResetFilters}>
           Reset filters
         </Button>
@@ -44,7 +39,5 @@ export const ShopResults = ({ books, onResetFilters }: ShopResultsProps) => {
     );
   }
 
-  return (
-    <ProductList books={books.map(toProductListBook)} desktopColumns={3} />
-  );
+  return <ProductList books={books.map(toProductListBook)} desktopColumns={3} />;
 };

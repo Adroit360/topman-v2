@@ -29,11 +29,11 @@ export const PublisherSection = () => {
   }
 
   return (
-    <section className="px-4 pb-14 sm:px-6 sm:pb-18 lg:px-8 lg:pb-24">
+    <section className="bg-[#f5f5f7] px-4 py-16 sm:px-6 sm:py-10">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 sm:gap-12">
-        <PublisherHeader />
+        {/* <PublisherHeader /> */}
 
-        <div className="flex flex-col gap-6 lg:gap-8">
+        <div className="flex flex-col gap-10 lg:gap-18">
           {groups.map((group) => {
             const productListBooks: BookTypes[] = group.books.map((book) => ({
               ...book,
@@ -49,11 +49,7 @@ export const PublisherSection = () => {
             }));
 
             return (
-              <section
-                key={group.id}
-                className="flex flex-col gap-5 shadow-sm"
-                aria-label={`${group.name} books`}
-              >
+              <section key={group.id} className="flex flex-col" aria-label={`${group.name} books`}>
                 <CategorySectionHeader title={group.name} link="#" />
 
                 <ProductList books={productListBooks} desktopColumns={4} />

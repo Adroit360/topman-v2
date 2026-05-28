@@ -24,15 +24,9 @@ type FilterSectionProps = {
   onToggle: (value: string) => void;
 };
 
-const checkboxClassName =
-  "size-4 rounded border border-input bg-background text-primary accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50";
+const checkboxClassName = "size-4 rounded border border-orange-300 !bg-white accent-orange-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50";
 
-const FilterSection = ({
-  title,
-  options,
-  selectedValues,
-  onToggle,
-}: FilterSectionProps) => {
+const FilterSection = ({ title, options, selectedValues, onToggle }: FilterSectionProps) => {
   if (options.length === 0) {
     return null;
   }
@@ -40,9 +34,7 @@ const FilterSection = ({
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-sm font-semibold tracking-[-0.02em] text-foreground ">
-          {title}
-        </h3>
+        <h3 className="text-sm font-semibold tracking-[-0.02em] text-foreground ">{title}</h3>
         <Badge variant="secondary">{options.length}</Badge>
       </div>
 
@@ -51,22 +43,12 @@ const FilterSection = ({
           const isSelected = selectedValues.includes(option.value);
 
           return (
-            <label
-              key={option.value}
-              className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted/50 data-[state=checked]:border-primary"
-            >
+            <label key={option.value} className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl -border -border-border bg-background px-3 py-2 text-sm transition-colors hover:bg-muted/50 data-[state=checked]:border-primary">
               <span className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={() => onToggle(option.value)}
-                  className={checkboxClassName}
-                />
+                <input type="checkbox" checked={isSelected} onChange={() => onToggle(option.value)} className={checkboxClassName} />
                 <span className="text-foreground">{option.label}</span>
               </span>
-              <span className="text-xs text-muted-foreground">
-                {option.count}
-              </span>
+              <span className="text-xs text-muted-foreground">{option.count}</span>
             </label>
           );
         })}
@@ -75,27 +57,13 @@ const FilterSection = ({
   );
 };
 
-export const ShopFilterControls = ({
-  filters,
-  publisherOptions,
-  typeOptions,
-  levelOptions,
-  onTogglePublisher,
-  onToggleType,
-  onToggleLevel,
-  onShowAvailableOnlyChange,
-  onReset,
-}: ShopFilterControlsProps) => {
+export const ShopFilterControls = ({ filters, publisherOptions, typeOptions, levelOptions, onTogglePublisher, onToggleType, onToggleLevel, onShowAvailableOnlyChange, onReset }: ShopFilterControlsProps) => {
   return (
     <div className="flex h-full flex-col gap-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
-            Browse filters
-          </p>
-          <h2 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-foreground">
-            Narrow the shelf
-          </h2>
+          <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">Browse filters</p>
+          <h2 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-foreground">Narrow the shelf</h2>
         </div>
 
         <Button variant="ghost" size="sm" onClick={onReset}>
@@ -103,26 +71,11 @@ export const ShopFilterControls = ({
         </Button>
       </div>
 
-      <FilterSection
-        title="Publishers"
-        options={publisherOptions}
-        selectedValues={filters.selectedPublisherIds}
-        onToggle={onTogglePublisher}
-      />
+      <FilterSection title="Publishers" options={publisherOptions} selectedValues={filters.selectedPublisherIds} onToggle={onTogglePublisher} />
 
-      <FilterSection
-        title="Type"
-        options={typeOptions}
-        selectedValues={filters.selectedTypes}
-        onToggle={onToggleType}
-      />
+      <FilterSection title="Type" options={typeOptions} selectedValues={filters.selectedTypes} onToggle={onToggleType} />
 
-      <FilterSection
-        title="Level"
-        options={levelOptions}
-        selectedValues={filters.selectedLevels}
-        onToggle={onToggleLevel}
-      />
+      <FilterSection title="Level" options={levelOptions} selectedValues={filters.selectedLevels} onToggle={onToggleLevel} />
     </div>
   );
 };
