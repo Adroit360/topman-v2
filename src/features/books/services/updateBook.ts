@@ -56,7 +56,7 @@ export const updateBook = async (input: unknown): Promise<BookActionResult> => {
   const { id, ...bookInput } = parsed.data;
 
   const [existingBook] = await db
-    .select({ id: book.id, publisherId: book.publisherId })
+    .select({ id: book.id })
     .from(book)
     .where(eq(book.id, id));
 
@@ -68,7 +68,7 @@ export const updateBook = async (input: unknown): Promise<BookActionResult> => {
   }
 
   const [matchedPublisher] = await db
-    .select({ id: publisher.id, name: publisher.name })
+    .select({ id: publisher.id })
     .from(publisher)
     .where(
       and(eq(publisher.id, bookInput.publisherId), isNull(publisher.deletedAt)),
@@ -87,7 +87,7 @@ export const updateBook = async (input: unknown): Promise<BookActionResult> => {
   try {
     await db
       .update(book)
-      .set(toBookInsertValues(bookInput, matchedPublisher.name))
+      .set(toBookInsertValues(bookInput))
       .where(eq(book.id, id));
 
     revalidatePath("/dashboard");

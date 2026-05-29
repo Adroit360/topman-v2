@@ -46,16 +46,16 @@ export const ShopResultsHeader = ({ searchTerm, onSearchTermChange, onOpenFilter
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="success" className="rounded-md px-3 py-1 h-8">
+          <Badge variant="success" className="rounded-md text-green-900 bg-green-100 font-medium px-3 py-1 h-8">
             {resultCountLabel}
           </Badge>
           {activeFilterCount > 0 ? (
-            <Badge variant="warning" className="rounded-md px-3 py-1 h-8">
+            <Badge variant="warning" className="rounded-md text-yellow-900 font-medium bg-yellow-100  px-3 py-1 h-8">
               {activeFilterCount} active
             </Badge>
           ) : null}
           {activeFilterCount > 0 ? (
-            <Button variant="ghost" size="sm" onClick={onResetFilters}>
+            <Button variant="ghost" size="sm" className="bg-red-200 text-red-700" onClick={onResetFilters}>
               Clear all
             </Button>
           ) : null}

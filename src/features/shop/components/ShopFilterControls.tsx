@@ -10,9 +10,11 @@ type ShopFilterControlsProps = {
   publisherOptions: ShopFilterOption[];
   typeOptions: ShopFilterOption[];
   levelOptions: ShopFilterOption[];
+  tagOptions: ShopFilterOption[];
   onTogglePublisher: (publisherId: string) => void;
   onToggleType: (type: string) => void;
   onToggleLevel: (level: string) => void;
+  onToggleTag: (tag: string) => void;
   onShowAvailableOnlyChange: (nextValue: boolean) => void;
   onReset: () => void;
 };
@@ -57,7 +59,7 @@ const FilterSection = ({ title, options, selectedValues, onToggle }: FilterSecti
   );
 };
 
-export const ShopFilterControls = ({ filters, publisherOptions, typeOptions, levelOptions, onTogglePublisher, onToggleType, onToggleLevel, onShowAvailableOnlyChange, onReset }: ShopFilterControlsProps) => {
+export const ShopFilterControls = ({ filters, publisherOptions, typeOptions, levelOptions, tagOptions, onTogglePublisher, onToggleType, onToggleLevel, onToggleTag, onShowAvailableOnlyChange, onReset }: ShopFilterControlsProps) => {
   return (
     <div className="flex h-full flex-col gap-6">
       <div className="flex items-center justify-between gap-3">
@@ -76,6 +78,8 @@ export const ShopFilterControls = ({ filters, publisherOptions, typeOptions, lev
       <FilterSection title="Type" options={typeOptions} selectedValues={filters.selectedTypes} onToggle={onToggleType} />
 
       <FilterSection title="Level" options={levelOptions} selectedValues={filters.selectedLevels} onToggle={onToggleLevel} />
+
+      <FilterSection title="Tags" options={tagOptions} selectedValues={filters.selectedTags} onToggle={onToggleTag} />
     </div>
   );
 };

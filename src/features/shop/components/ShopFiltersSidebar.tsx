@@ -3,9 +3,9 @@
 import type { UseShopFiltersResult } from "../types/filters";
 import { ShopFilterControls } from "./ShopFilterControls";
 
-type ShopFiltersSidebarProps = Pick<UseShopFiltersResult, "filters" | "publisherOptions" | "typeOptions" | "levelOptions" | "togglePublisher" | "toggleType" | "toggleLevel" | "setShowAvailableOnly" | "resetFilters">;
+type ShopFiltersSidebarProps = Pick<UseShopFiltersResult, "filters" | "publisherOptions" | "typeOptions" | "levelOptions" | "tagOptions" | "togglePublisher" | "toggleType" | "toggleLevel" | "toggleTag" | "setShowAvailableOnly" | "resetFilters">;
 
-export const ShopFiltersSidebar = ({ filters, publisherOptions, typeOptions, levelOptions, togglePublisher, toggleType, toggleLevel, setShowAvailableOnly, resetFilters }: ShopFiltersSidebarProps) => {
+export const ShopFiltersSidebar = ({ filters, publisherOptions, typeOptions, levelOptions, tagOptions, togglePublisher, toggleType, toggleLevel, toggleTag, setShowAvailableOnly, resetFilters }: ShopFiltersSidebarProps) => {
   return (
     <aside className="hidden w-full max-w-xs shrink-0 lg:block">
       <div className="sticky top-24 rounded-[2rem] -border -border-border bg-[linear-gradient(180deg,color-mix(in_oklab,var(--color-background)_94%,transparent)_0%,color-mix(in_oklab,var(--color-muted)_26%,transparent)_100%)] p-5 ">
@@ -14,9 +14,11 @@ export const ShopFiltersSidebar = ({ filters, publisherOptions, typeOptions, lev
           publisherOptions={publisherOptions}
           typeOptions={typeOptions}
           levelOptions={levelOptions}
+          tagOptions={tagOptions}
           onTogglePublisher={togglePublisher}
           onToggleType={toggleType}
           onToggleLevel={toggleLevel}
+          onToggleTag={toggleTag}
           onShowAvailableOnlyChange={setShowAvailableOnly}
           onReset={resetFilters}
         />

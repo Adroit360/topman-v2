@@ -14,31 +14,70 @@ const INITIAL_FILTERS: ShopFilterState = {
   selectedPublisherIds: [],
   selectedTypes: [],
   selectedLevels: [],
+  selectedTags: [],
   showAvailableOnly: false,
 };
 
 const normalizeText = (value: string) => value.trim().toLowerCase();
 
-const buildOptions = (
+const normalizeFilterValues = (values: string[] | undefined) => values?.map(normalizeText).filter(Boolean) ?? [];
+
+const buildInitialFilters = (initialFilters?: Partial<ShopFilterState>): ShopFilterState => ({
+  searchTerm: initialFilters?.searchTerm ?? INITIAL_FILTERS.searchTerm,
+  selectedPublisherIds: normalizeFilterValues(initialFilters?.selectedPublisherIds),
+  selectedTypes: normalizeFilterValues(initialFilters?.selectedTypes),
+  selectedLevels: normalizeFilterValues(initialFilters?.selectedLevels),
+  selectedTags: normalizeFilterValues(initialFilters?.selectedTags),
+  showAvailableOnly: initialFilters?.showAvailableOnly ?? INITIAL_FILTERS.showAvailableOnly,
+});
+
+const canonicalTypeLabels = new Map<string, string>([
+  ["activity book", "Activity Book"],
+  ["handbook", "Handbook"],
+  ["literature", "Literature"],
+  ["practical book", "Practical Book"],
+  ["practice book", "Practice Book"],
+  ["sensoral practice", "Sensoral Practice"],
+  ["textbook", "Textbook"],
+  ["workbook", "Workbook"],
+  ["writing book", "Writing Book"],
+]);
+
+const canonicalLevelLabels = new Map<string, string>([
+  ["all", "All"],
+  ["colleges", "Colleges"],
+  ["junior high schools", "Junior High Schools"],
+  ["preschool", "Preschool"],
+  ["primary", "Primary"],
+  ["senior high school", "Senior High School"],
+]);
+
+const buildNormalizedOptions = (
   values: string[],
-  labels?: Map<string, string>,
+  getLabel?: (value: string) => string,
 ): ShopFilterOption[] => {
   const counts = new Map<string, number>();
+  const labels = new Map<string, string>();
 
   for (const value of values) {
     const normalizedValue = value.trim();
+    const normalizedKey = normalizeText(normalizedValue);
 
-    if (!normalizedValue) {
+    if (!normalizedKey) {
       continue;
     }
 
-    counts.set(normalizedValue, (counts.get(normalizedValue) ?? 0) + 1);
+    counts.set(normalizedKey, (counts.get(normalizedKey) ?? 0) + 1);
+
+    if (!labels.has(normalizedKey)) {
+      labels.set(normalizedKey, getLabel?.(normalizedValue) ?? normalizedValue);
+    }
   }
 
   return [...counts.entries()]
     .map(([value, count]) => ({
       value,
-      label: labels?.get(value) ?? value,
+      label: labels.get(value) ?? value,
       count,
     }))
     .sort((left, right) => left.label.localeCompare(right.label));
@@ -71,26 +110,39 @@ const matchesSearchTerm = (book: BookRecord, searchTerm: string) => {
 export const useShopFilters = ({
   books,
   publishers,
+  initialFilters,
 }: UseShopFiltersInput): UseShopFiltersResult => {
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [filters, setFilters] = useState(() => buildInitialFilters(initialFilters));
   const deferredSearchTerm = useDeferredValue(filters.searchTerm);
 
   const publisherOptions = useMemo(
     () =>
-      buildOptions(
-        books.map((book) => book.publisherId),
-        new Map(publishers.map((publisher) => [publisher.id, publisher.name])),
+      buildNormalizedOptions(
+        books.map((book) => book.publisher.name),
       ),
-    [books, publishers],
+    [books],
   );
 
   const typeOptions = useMemo(
-    () => buildOptions(books.map((book) => book.type)),
+    () =>
+      buildNormalizedOptions(
+        books.map((book) => book.type),
+        (value) => canonicalTypeLabels.get(normalizeText(value)) ?? value,
+      ),
     [books],
   );
 
   const levelOptions = useMemo(
-    () => buildOptions(books.map((book) => book.level)),
+    () =>
+      buildNormalizedOptions(
+        books.map((book) => book.level),
+        (value) => canonicalLevelLabels.get(normalizeText(value)) ?? value,
+      ),
+    [books],
+  );
+
+  const tagOptions = useMemo(
+    () => buildNormalizedOptions(books.flatMap((book) => book.tags)),
     [books],
   );
 
@@ -100,21 +152,28 @@ export const useShopFilters = ({
     return books.filter((book) => {
       if (
         filters.selectedPublisherIds.length > 0 &&
-        !filters.selectedPublisherIds.includes(book.publisherId)
+        !filters.selectedPublisherIds.includes(normalizeText(book.publisher.name))
       ) {
         return false;
       }
 
       if (
         filters.selectedTypes.length > 0 &&
-        !filters.selectedTypes.includes(book.type)
+        !filters.selectedTypes.includes(normalizeText(book.type))
       ) {
         return false;
       }
 
       if (
         filters.selectedLevels.length > 0 &&
-        !filters.selectedLevels.includes(book.level)
+        !filters.selectedLevels.includes(normalizeText(book.level))
+      ) {
+        return false;
+      }
+
+      if (
+        filters.selectedTags.length > 0 &&
+        !book.tags.some((tag) => filters.selectedTags.includes(normalizeText(tag)))
       ) {
         return false;
       }
@@ -131,6 +190,7 @@ export const useShopFilters = ({
     filters.selectedPublisherIds.length +
     filters.selectedTypes.length +
     filters.selectedLevels.length +
+    filters.selectedTags.length +
     (filters.showAvailableOnly ? 1 : 0) +
     (filters.searchTerm.trim() ? 1 : 0);
 
@@ -142,6 +202,7 @@ export const useShopFilters = ({
     publisherOptions,
     typeOptions,
     levelOptions,
+    tagOptions,
     activeFilterCount,
     resultCountLabel:
       filteredBooks.length === 1 ? "1 book" : `${filteredBooks.length} books`,
@@ -170,6 +231,12 @@ export const useShopFilters = ({
       setFilters((currentFilters) => ({
         ...currentFilters,
         selectedLevels: toggleValue(currentFilters.selectedLevels, level),
+      }));
+    },
+    toggleTag: (tag) => {
+      setFilters((currentFilters) => ({
+        ...currentFilters,
+        selectedTags: toggleValue(currentFilters.selectedTags, tag),
       }));
     },
     setShowAvailableOnly: (nextValue) => {

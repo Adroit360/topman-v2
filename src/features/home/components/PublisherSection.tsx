@@ -35,12 +35,13 @@ export const PublisherSection = () => {
 
         <div className="flex flex-col gap-10 lg:gap-18">
           {groups.map((group) => {
+            const categoryLink = group.isGeneral ? "/shop?type=Literature" : `/shop?publisher=${encodeURIComponent(group.name)}`;
             const productListBooks: BookTypes[] = group.books.map((book) => ({
               ...book,
               level: "Featured",
               type: group.isGeneral ? "Literature" : "Publisher",
               isAvailable: true,
-              image: book.image ?? "/placeholder-book.png",
+              image: book.image,
               publisher: {
                 id: group.id,
                 name: group.name,
@@ -50,7 +51,7 @@ export const PublisherSection = () => {
 
             return (
               <section key={group.id} className="flex flex-col" aria-label={`${group.name} books`}>
-                <CategorySectionHeader title={group.name} link="#" />
+                <CategorySectionHeader title={group.name} link={categoryLink} />
 
                 <ProductList books={productListBooks} desktopColumns={4} />
               </section>

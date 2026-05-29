@@ -16,9 +16,11 @@ type ShopFiltersDrawerProps = Pick<
   | "publisherOptions"
   | "typeOptions"
   | "levelOptions"
+  | "tagOptions"
   | "togglePublisher"
   | "toggleType"
   | "toggleLevel"
+  | "toggleTag"
   | "setShowAvailableOnly"
   | "resetFilters"
 > & {
@@ -33,9 +35,11 @@ export const ShopFiltersDrawer = ({
   publisherOptions,
   typeOptions,
   levelOptions,
+  tagOptions,
   togglePublisher,
   toggleType,
   toggleLevel,
+  toggleTag,
   setShowAvailableOnly,
   resetFilters,
 }: ShopFiltersDrawerProps) => {
@@ -55,9 +59,11 @@ export const ShopFiltersDrawer = ({
             publisherOptions={publisherOptions}
             typeOptions={typeOptions}
             levelOptions={levelOptions}
+            tagOptions={tagOptions}
             onTogglePublisher={togglePublisher}
             onToggleType={toggleType}
             onToggleLevel={toggleLevel}
+            onToggleTag={toggleTag}
             onShowAvailableOnlyChange={setShowAvailableOnly}
             onReset={resetFilters}
           />

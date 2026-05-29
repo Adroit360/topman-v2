@@ -6,6 +6,7 @@ export type ShopFilterState = {
   selectedPublisherIds: string[];
   selectedTypes: string[];
   selectedLevels: string[];
+  selectedTags: string[];
   showAvailableOnly: boolean;
 };
 
@@ -18,6 +19,7 @@ export type ShopFilterOption = {
 export type UseShopFiltersInput = {
   books: BookRecord[];
   publishers: PublisherSummary[];
+  initialFilters?: Partial<ShopFilterState>;
 };
 
 export type UseShopFiltersResult = {
@@ -28,12 +30,14 @@ export type UseShopFiltersResult = {
   publisherOptions: ShopFilterOption[];
   typeOptions: ShopFilterOption[];
   levelOptions: ShopFilterOption[];
+  tagOptions: ShopFilterOption[];
   activeFilterCount: number;
   resultCountLabel: string;
   setSearchTerm: (value: string) => void;
   togglePublisher: (publisherId: string) => void;
   toggleType: (type: string) => void;
   toggleLevel: (level: string) => void;
+  toggleTag: (tag: string) => void;
   setShowAvailableOnly: (nextValue: boolean) => void;
   resetFilters: () => void;
 };
