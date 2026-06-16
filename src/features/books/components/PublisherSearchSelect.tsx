@@ -21,7 +21,12 @@ const matchesQuery = (publisher: PublisherOption, query: string) => {
     return true;
   }
 
-  const haystack = [publisher.name, publisher.reference, publisher.author]
+  const haystack = [
+    publisher.name,
+    publisher.reference,
+    publisher.author,
+    ...publisher.authors.map((author) => author.name),
+  ]
     .join(" ")
     .toLowerCase();
 
@@ -112,7 +117,11 @@ export const PublisherSearchSelect = ({
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
                         {option.reference}
-                        {option.author ? ` · ${option.author}` : ""}
+                        {option.authors.length > 0
+                          ? ` · ${option.authors.map((author) => author.name).join(", ")}`
+                          : option.author
+                            ? ` · ${option.author}`
+                            : ""}
                         {option.archived ? " · archived" : ""}
                       </span>
                     </span>

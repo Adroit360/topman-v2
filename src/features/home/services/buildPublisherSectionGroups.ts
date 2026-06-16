@@ -53,7 +53,7 @@ const toSectionBook = (book: BookRecord): PublisherSectionBook => ({
   id: book.id,
   title: book.title,
   image: book.image,
-  author: book.publisher.author,
+  author: book.author?.name ?? book.publisher.author,
   price: book.price,
 });
 

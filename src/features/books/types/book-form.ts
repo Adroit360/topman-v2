@@ -1,15 +1,27 @@
 import { z } from "zod/v4";
-import { isSourceBookLevel, isSourceBookType, sourceBookLevelOptions, sourceBookTypeOptions } from "@/lib/book-taxonomy";
+import { getSourceBookLevelOption, getSourceBookTypeOption, sourceBookLevelOptions, sourceBookTypeOptions } from "@/lib/book-taxonomy";
 
 export const bookLevelOptions = sourceBookLevelOptions;
 
 export const bookTypeOptions = sourceBookTypeOptions;
 
-export const bookFieldNames = ["title", "level", "type", "tags", "price", "publisherId", "isAvailable", "imageUrl"] as const;
+export const bookFieldNames = ["title", "level", "type", "tags", "price", "publisherId", "authorId", "isAvailable", "imageUrl"] as const;
 
 const bookTextField = (label: string) => z.string().trim().min(1, `${label} is required.`).max(255, `${label} must be 255 characters or less.`);
 
-const taxonomyField = (label: "Level" | "Type", predicate: (value: string) => boolean) => z.string().trim().min(1, `${label} is required.`).refine(predicate, `Choose a valid ${label.toLowerCase()}.`);
+const bookLevelField = z
+  .string()
+  .trim()
+  .min(1, "Level is required.")
+  .max(255, "Level must be 255 characters or less.")
+  .transform((value) => getSourceBookLevelOption(value) ?? value);
+
+const bookTypeField = z
+  .string()
+  .trim()
+  .min(1, "Type is required.")
+  .max(255, "Type must be 255 characters or less.")
+  .transform((value) => getSourceBookTypeOption(value) ?? value);
 
 const normalizeBookTags = (tags: string[]) => {
   const uniqueTags = new Set<string>();
@@ -31,11 +43,12 @@ const normalizeBookTags = (tags: string[]) => {
 
 export const bookFormSchema = z.object({
   title: bookTextField("Title"),
-  level: taxonomyField("Level", isSourceBookLevel),
-  type: taxonomyField("Type", isSourceBookType),
+  level: bookLevelField,
+  type: bookTypeField,
   tags: z.array(z.string()).transform(normalizeBookTags),
   price: z.number().int().min(0, "Price must be zero or more."),
   publisherId: z.string().trim().min(1, "Publisher is required."),
+  authorId: z.string().trim().min(1, "Author is required."),
   isAvailable: z.boolean(),
   imageUrl: z.string().nullable().optional(),
 });
@@ -76,6 +89,7 @@ export const toBookInsertValues = (
     tags: string[];
     price: number;
     publisherId: string;
+    authorId: string;
     isAvailable: boolean;
     imageUrl?: string | null;
   },
@@ -87,5 +101,6 @@ export const toBookInsertValues = (
   price: values.price,
   tags: values.tags,
   publisherId: values.publisherId,
+  authorId: values.authorId,
   isAvailable: values.isAvailable,
 });

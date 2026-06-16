@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { publisher } from "@/db/schema/publisher";
+import { publisher, publisherAuthor } from "@/db/schema/publisher";
 import {
   createPublisherSchema,
   publisherFieldNames,
@@ -59,10 +59,28 @@ export const createPublisher = async (
   }
 
   try {
-    const [createdPublisher] = await db
-      .insert(publisher)
-      .values(parsed.data)
-      .$returningId();
+    const createdPublisher = await db.transaction(async (tx) => {
+      const primaryAuthor = parsed.data.authors[0] ?? "Unknown";
+      const [createdPublisher] = await tx
+        .insert(publisher)
+        .values({
+          name: parsed.data.name,
+          reference: parsed.data.reference,
+          author: primaryAuthor,
+        })
+        .$returningId();
+
+      const authorValues = parsed.data.authors.map((authorName) => ({
+        publisherId: createdPublisher.id,
+        name: authorName,
+      }));
+
+      if (authorValues.length > 0) {
+        await tx.insert(publisherAuthor).values(authorValues);
+      }
+
+      return createdPublisher;
+    });
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/publishers");
@@ -73,7 +91,14 @@ export const createPublisher = async (
       data: {
         publisher: {
           id: createdPublisher.id,
-          ...parsed.data,
+          name: parsed.data.name,
+          reference: parsed.data.reference,
+          author: parsed.data.authors[0] ?? "Unknown",
+          authors: parsed.data.authors.map((authorName) => ({
+            id: "",
+            publisherId: createdPublisher.id,
+            name: authorName,
+          })),
         },
       },
     };

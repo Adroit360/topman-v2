@@ -8,7 +8,7 @@ import {
   json,
 } from "drizzle-orm/mysql-core";
 import { createdAt, id, updatedAt } from "./schema-helper";
-import { publisher } from "./publisher";
+import { publisher, publisherAuthor } from "./publisher";
 import { relations } from "drizzle-orm/relations";
 
 export const book = table("books", {
@@ -23,6 +23,7 @@ export const book = table("books", {
   publisherId: varchar({ length: 191 })
     .notNull()
     .references(() => publisher.id),
+  authorId: varchar({ length: 191 }).references(() => publisherAuthor.id),
   deletedAt: timestamp({ mode: "date" }),
   createdAt,
   updatedAt,
@@ -32,5 +33,9 @@ export const bookRelations = relations(book, ({ one }) => ({
   publisher: one(publisher, {
     fields: [book.publisherId],
     references: [publisher.id],
+  }),
+  author: one(publisherAuthor, {
+    fields: [book.authorId],
+    references: [publisherAuthor.id],
   }),
 }));

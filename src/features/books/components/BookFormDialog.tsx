@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UploadIcon, XIcon } from "lucide-react";
+import { PlusIcon, UploadIcon, XIcon } from "lucide-react";
 import Cropper, { type Area } from "react-easy-crop";
 import "react-easy-crop/react-easy-crop.css";
 import { toast } from "sonner";
@@ -13,7 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { BookRecord, PublisherSummary } from "@/features/catalog";
+import type { BookRecord, PublisherAuthorSummary, PublisherSummary } from "@/features/catalog";
+import { getSourceBookLevelOption, getSourceBookTypeOption } from "@/lib/book-taxonomy";
 import { createBook } from "../services/createBook";
 import { updateBook } from "../services/updateBook";
 import { uploadBookCover } from "../services/uploadBookCover";
@@ -27,6 +28,7 @@ const emptyValues: BookFormValues = {
   tags: [],
   price: 0,
   publisherId: "",
+  authorId: "",
   isAvailable: true,
   imageUrl: undefined,
 };
@@ -56,6 +58,45 @@ const buildPublisherOptions = ({ publishers, book }: { publishers: PublisherSumm
 };
 
 const normalizeTagValue = (value: string) => value.trim();
+
+const normalizeOptionKey = (value: string) => value.trim().toLowerCase();
+
+const buildBookSelectOptions = ({
+  book,
+  customOptions,
+  defaultOptions,
+  getCanonicalOption,
+  fieldName,
+}: {
+  book?: BookRecord | null;
+  customOptions: string[];
+  defaultOptions: readonly string[];
+  getCanonicalOption: (value: string) => string | null;
+  fieldName: "level" | "type";
+}) => {
+  const options: string[] = [];
+  const optionKeys = new Set<string>();
+
+  for (const rawOption of [
+    ...defaultOptions,
+    ...customOptions,
+    book?.[fieldName] ?? "",
+  ]) {
+    const normalizedOption = rawOption.trim();
+    const canonicalOption =
+      getCanonicalOption(normalizedOption) ?? normalizedOption;
+    const optionKey = normalizeOptionKey(canonicalOption);
+
+    if (!canonicalOption || optionKeys.has(optionKey)) {
+      continue;
+    }
+
+    optionKeys.add(optionKey);
+    options.push(canonicalOption);
+  }
+
+  return options;
+};
 
 const appendTags = (currentTags: string[], rawValue: string) => {
   const nextTags = [...currentTags];
@@ -154,13 +195,46 @@ export const BookFormDialog = ({ mode, open, book, publishers, onOpenChange, onS
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isCroppingImage, setIsCroppingImage] = useState(false);
   const [tagInputValue, setTagInputValue] = useState("");
+  const [authorOptions, setAuthorOptions] = useState<PublisherAuthorSummary[]>([]);
+  const [isLoadingAuthors, setIsLoadingAuthors] = useState(false);
+  const [authorsError, setAuthorsError] = useState<string | null>(null);
+  const [isAddingLevel, setIsAddingLevel] = useState(false);
+  const [customLevelInput, setCustomLevelInput] = useState("");
+  const [customLevelOptions, setCustomLevelOptions] = useState<string[]>([]);
+  const [isAddingType, setIsAddingType] = useState(false);
+  const [customTypeInput, setCustomTypeInput] = useState("");
+  const [customTypeOptions, setCustomTypeOptions] = useState<string[]>([]);
   const form = useForm<BookFormValues>({
     resolver: zodResolver(bookFormSchema),
     defaultValues: emptyValues,
   });
   const tags = form.watch("tags");
+  const selectedPublisherId = form.watch("publisherId");
 
   const publisherOptions = useMemo(() => buildPublisherOptions({ publishers, book }), [book, publishers]);
+  const selectedPublisher = publisherOptions.find((publisher) => publisher.id === selectedPublisherId);
+  const bookLevelSelectOptions = useMemo(
+    () =>
+      buildBookSelectOptions({
+        book,
+        customOptions: customLevelOptions,
+        defaultOptions: bookLevelOptions,
+        getCanonicalOption: getSourceBookLevelOption,
+        fieldName: "level",
+      }),
+    [book, customLevelOptions],
+  );
+  const bookTypeSelectOptions = useMemo(
+    () =>
+      buildBookSelectOptions({
+        book,
+        customOptions: customTypeOptions,
+        defaultOptions: bookTypeOptions,
+        getCanonicalOption: getSourceBookTypeOption,
+        fieldName: "type",
+      }),
+    [book, customTypeOptions],
+  );
 
   useEffect(() => {
     if (!open) {
@@ -176,22 +250,85 @@ export const BookFormDialog = ({ mode, open, book, publishers, onOpenChange, onS
     setZoom(1);
     setCroppedAreaPixels(null);
     setTagInputValue("");
+    setIsAddingLevel(false);
+    setCustomLevelInput("");
+    setCustomLevelOptions([]);
+    setIsAddingType(false);
+    setCustomTypeInput("");
+    setCustomTypeOptions([]);
 
     form.reset(
       book
         ? {
             title: book.title,
-            level: book.level,
-            type: book.type,
+            level: getSourceBookLevelOption(book.level) ?? book.level,
+            type: getSourceBookTypeOption(book.type) ?? book.type,
             tags: book.tags,
             price: book.price,
             publisherId: book.publisherId,
+            authorId:
+              book.authorId ??
+              publishers.find((publisher) => publisher.id === book.publisherId)
+                ?.authors[0]?.id ??
+              "",
             isAvailable: book.isAvailable,
             imageUrl: book.image ?? undefined,
           }
         : emptyValues,
     );
-  }, [book, form, open]);
+  }, [book, form, open, publishers]);
+
+  useEffect(() => {
+    if (!open || !selectedPublisherId) {
+      setAuthorOptions([]);
+      setIsLoadingAuthors(false);
+      setAuthorsError(null);
+      return;
+    }
+
+    let isCurrentRequest = true;
+    const fallbackAuthors = selectedPublisher?.authors ?? [];
+
+    setAuthorOptions(fallbackAuthors);
+    setIsLoadingAuthors(true);
+    setAuthorsError(null);
+
+    fetch(`/api/publishers/${encodeURIComponent(selectedPublisherId)}/authors`)
+      .then(async (response) => {
+        const payload = (await response.json()) as {
+          success?: boolean;
+          message?: string;
+          data?: { authors?: PublisherAuthorSummary[] };
+        };
+
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || "Authors could not be loaded.");
+        }
+
+        if (isCurrentRequest) {
+          setAuthorOptions(payload.data?.authors ?? []);
+        }
+      })
+      .catch((error) => {
+        if (isCurrentRequest) {
+          setAuthorsError(
+            error instanceof Error
+              ? error.message
+              : "Authors could not be loaded.",
+          );
+          setAuthorOptions(fallbackAuthors);
+        }
+      })
+      .finally(() => {
+        if (isCurrentRequest) {
+          setIsLoadingAuthors(false);
+        }
+      });
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [open, selectedPublisher?.authors, selectedPublisherId]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
@@ -211,9 +348,94 @@ export const BookFormDialog = ({ mode, open, book, publishers, onOpenChange, onS
       setZoom(1);
       setCroppedAreaPixels(null);
       setTagInputValue("");
+      setAuthorOptions([]);
+      setIsLoadingAuthors(false);
+      setAuthorsError(null);
+      setIsAddingLevel(false);
+      setCustomLevelInput("");
+      setCustomLevelOptions([]);
+      setIsAddingType(false);
+      setCustomTypeInput("");
+      setCustomTypeOptions([]);
     }
 
     onOpenChange(nextOpen);
+  };
+
+  const handleAddLevel = () => {
+    const normalizedLevel = customLevelInput.trim();
+
+    if (!normalizedLevel) {
+      toast.error("Enter a level name before adding it.");
+      return;
+    }
+
+    const existingLevel = bookLevelSelectOptions.find(
+      (levelOption) =>
+        normalizeOptionKey(levelOption) === normalizeOptionKey(normalizedLevel),
+    );
+    const nextLevel = existingLevel ?? normalizedLevel;
+
+    if (!existingLevel) {
+      setCustomLevelOptions((currentOptions) => {
+        if (
+          currentOptions.some(
+            (levelOption) =>
+              normalizeOptionKey(levelOption) === normalizeOptionKey(nextLevel),
+          )
+        ) {
+          return currentOptions;
+        }
+
+        return [...currentOptions, nextLevel];
+      });
+    }
+
+    form.setValue("level", nextLevel, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setCustomLevelInput("");
+    setIsAddingLevel(false);
+  };
+
+  const handleAddType = () => {
+    const normalizedType = customTypeInput.trim();
+
+    if (!normalizedType) {
+      toast.error("Enter a type name before adding it.");
+      return;
+    }
+
+    const existingType = bookTypeSelectOptions.find(
+      (typeOption) =>
+        normalizeOptionKey(typeOption) === normalizeOptionKey(normalizedType),
+    );
+    const nextType = existingType ?? normalizedType;
+
+    if (!existingType) {
+      setCustomTypeOptions((currentOptions) => {
+        if (
+          currentOptions.some(
+            (typeOption) =>
+              normalizeOptionKey(typeOption) === normalizeOptionKey(nextType),
+          )
+        ) {
+          return currentOptions;
+        }
+
+        return [...currentOptions, nextType];
+      });
+    }
+
+    form.setValue("type", nextType, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setCustomTypeInput("");
+    setIsAddingType(false);
   };
 
   const commitTags = (rawValue: string) => {
@@ -419,20 +641,63 @@ export const BookFormDialog = ({ mode, open, book, publishers, onOpenChange, onS
                       name="level"
                       render={({ field, fieldState }) => (
                         <>
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger id={`${mode}-book-level`} className="w-full" aria-invalid={fieldState.invalid}>
-                              <SelectValue placeholder="Choose level" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                {bookLevelOptions.map((levelOption) => (
-                                  <SelectItem key={levelOption} value={levelOption}>
-                                    {levelOption}
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex items-center gap-2">
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger id={`${mode}-book-level`} className="w-full" aria-invalid={fieldState.invalid}>
+                                <SelectValue placeholder="Choose level" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  {bookLevelSelectOptions.map((levelOption) => (
+                                    <SelectItem key={levelOption} value={levelOption}>
+                                      {levelOption}
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setIsAddingLevel((currentValue) => !currentValue)}
+                              aria-label="Add book level"
+                              title="Add book level"
+                            >
+                              <PlusIcon />
+                            </Button>
+                          </div>
+                          {isAddingLevel ? (
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                              <Input
+                                value={customLevelInput}
+                                onChange={(event) => setCustomLevelInput(event.target.value)}
+                                onKeyDown={(event) => {
+                                  if (event.key === "Enter") {
+                                    event.preventDefault();
+                                    handleAddLevel();
+                                  }
+                                }}
+                                placeholder="Tertiary"
+                                aria-label="New book level"
+                              />
+                              <div className="flex gap-2">
+                                <Button type="button" onClick={handleAddLevel}>
+                                  Use
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setCustomLevelInput("");
+                                    setIsAddingLevel(false);
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : null}
                           <FieldError errors={[fieldState.error]} />
                         </>
                       )}
@@ -448,20 +713,63 @@ export const BookFormDialog = ({ mode, open, book, publishers, onOpenChange, onS
                       name="type"
                       render={({ field, fieldState }) => (
                         <>
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger id={`${mode}-book-type`} className="w-full" aria-invalid={fieldState.invalid}>
-                              <SelectValue placeholder="Choose type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                {bookTypeOptions.map((typeOption) => (
-                                  <SelectItem key={typeOption} value={typeOption}>
-                                    {typeOption}
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex items-center gap-2">
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger id={`${mode}-book-type`} className="w-full" aria-invalid={fieldState.invalid}>
+                                <SelectValue placeholder="Choose type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  {bookTypeSelectOptions.map((typeOption) => (
+                                    <SelectItem key={typeOption} value={typeOption}>
+                                      {typeOption}
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setIsAddingType((currentValue) => !currentValue)}
+                              aria-label="Add book type"
+                              title="Add book type"
+                            >
+                              <PlusIcon />
+                            </Button>
+                          </div>
+                          {isAddingType ? (
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                              <Input
+                                value={customTypeInput}
+                                onChange={(event) => setCustomTypeInput(event.target.value)}
+                                onKeyDown={(event) => {
+                                  if (event.key === "Enter") {
+                                    event.preventDefault();
+                                    handleAddType();
+                                  }
+                                }}
+                                placeholder="Past Questions"
+                                aria-label="New book type"
+                              />
+                              <div className="flex gap-2">
+                                <Button type="button" onClick={handleAddType}>
+                                  Use
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setCustomTypeInput("");
+                                    setIsAddingType(false);
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : null}
                           <FieldError errors={[fieldState.error]} />
                         </>
                       )}
@@ -545,12 +853,86 @@ export const BookFormDialog = ({ mode, open, book, publishers, onOpenChange, onS
                       name="publisherId"
                       render={({ field, fieldState }) => (
                         <>
-                          <PublisherSearchSelect options={publisherOptions} value={field.value} onChange={field.onChange} placeholder="Select publisher" ariaInvalid={fieldState.invalid} />
+                          <PublisherSearchSelect
+                            options={publisherOptions}
+                            value={field.value}
+                            onChange={(nextPublisherId) => {
+                              field.onChange(nextPublisherId);
+                              form.setValue("authorId", "", {
+                                shouldDirty: true,
+                                shouldTouch: true,
+                                shouldValidate: true,
+                              });
+                            }}
+                            placeholder="Select publisher"
+                            ariaInvalid={fieldState.invalid}
+                          />
                           <FieldDescription>Search by publisher name, reference, or author.</FieldDescription>
                           <FieldError errors={[fieldState.error]} />
                         </>
                       )}
                     />
+                  </FieldContent>
+                </Field>
+
+                <Field data-invalid={form.formState.errors.authorId ? true : undefined} data-disabled={!selectedPublisherId ? true : undefined}>
+                  <FieldLabel htmlFor={`${mode}-book-author`}>Author</FieldLabel>
+                  <FieldContent>
+                    <Controller
+                      control={form.control}
+                      name="authorId"
+                      render={({ field, fieldState }) => (
+                        <>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={!selectedPublisherId || isLoadingAuthors || Boolean(authorsError) || authorOptions.length === 0}
+                          >
+                            <SelectTrigger id={`${mode}-book-author`} className="w-full" aria-invalid={fieldState.invalid}>
+                              <SelectValue
+                                placeholder={
+                                  !selectedPublisherId
+                                    ? "Select publisher first"
+                                    : isLoadingAuthors
+                                      ? "Loading authors..."
+                                      : "Choose author"
+                                }
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {authorOptions.map((author) => (
+                                  <SelectItem key={author.id} value={author.id}>
+                                    {author.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          {selectedPublisherId && !isLoadingAuthors && !authorsError && authorOptions.length === 0 ? (
+                            <FieldDescription>No authors are linked to this publisher yet.</FieldDescription>
+                          ) : null}
+                          {authorsError ? (
+                            <FieldDescription>{authorsError}</FieldDescription>
+                          ) : null}
+                          <FieldError errors={[fieldState.error]} />
+                        </>
+                      )}
+                    />
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
+
+              <FieldGroup className="@md/field-group:grid @md/field-group:grid-cols-2">
+                <Field data-invalid={form.formState.errors.price ? true : undefined}>
+                  <FieldLabel htmlFor={`${mode}-book-price`}>Price</FieldLabel>
+                  <FieldContent>
+                    <Input id={`${mode}-book-price`} type="number" min="0" step="1" placeholder="45" aria-invalid={form.formState.errors.price ? true : undefined} {...form.register("price", { valueAsNumber: true })} />
+                    {/* <FieldDescription>
+                      Tags are generated automatically from the book title and
+                      selected publisher.
+                    </FieldDescription> */}
+                    <FieldError errors={[form.formState.errors.price]} />
                   </FieldContent>
                 </Field>
 
@@ -580,18 +962,6 @@ export const BookFormDialog = ({ mode, open, book, publishers, onOpenChange, onS
                   </FieldContent>
                 </Field>
               </FieldGroup>
-
-              <Field data-invalid={form.formState.errors.price ? true : undefined}>
-                <FieldLabel htmlFor={`${mode}-book-price`}>Price</FieldLabel>
-                <FieldContent>
-                  <Input id={`${mode}-book-price`} type="number" min="0" step="1" placeholder="45" aria-invalid={form.formState.errors.price ? true : undefined} {...form.register("price", { valueAsNumber: true })} />
-                  {/* <FieldDescription>
-                    Tags are generated automatically from the book title and
-                    selected publisher.
-                  </FieldDescription> */}
-                  <FieldError errors={[form.formState.errors.price]} />
-                </FieldContent>
-              </Field>
             </FieldGroup>
           </div>
 

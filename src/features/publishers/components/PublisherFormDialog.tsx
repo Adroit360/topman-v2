@@ -2,7 +2,8 @@
 
 import { useEffect, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +34,7 @@ import {
 const emptyValues: PublisherFormValues = {
   name: "",
   reference: "",
-  author: "",
+  authors: [""],
 };
 
 export const PublisherFormDialog = ({
@@ -54,6 +55,14 @@ export const PublisherFormDialog = ({
     resolver: zodResolver(publisherFormSchema),
     defaultValues: emptyValues,
   });
+  const authors =
+    useWatch({
+      control: form.control,
+      name: "authors",
+    }) ?? emptyValues.authors;
+  const authorFieldErrors = Array.isArray(form.formState.errors.authors)
+    ? form.formState.errors.authors
+    : [];
 
   useEffect(() => {
     if (!open) {
@@ -65,7 +74,10 @@ export const PublisherFormDialog = ({
         ? {
             name: publisher.name,
             reference: publisher.reference,
-            author: publisher.author,
+            authors:
+              publisher.authors.length > 0
+                ? publisher.authors.map((author) => author.name)
+                : [publisher.author],
           }
         : emptyValues,
     );
@@ -167,24 +179,78 @@ export const PublisherFormDialog = ({
                 <FieldError errors={[form.formState.errors.reference]} />
               </FieldContent>
             </Field>
-            <Field
-              data-invalid={form.formState.errors.author ? true : undefined}
-            >
-              <FieldLabel htmlFor={`${mode}-publisher-author`}>
-                Author
-              </FieldLabel>
+            <Field data-invalid={form.formState.errors.authors ? true : undefined}>
+              <FieldLabel>Authors</FieldLabel>
               <FieldContent>
-                <Input
-                  id={`${mode}-publisher-author`}
-                  placeholder="Topman Books"
-                  aria-invalid={form.formState.errors.author ? true : undefined}
-                  {...form.register("author")}
-                />
+                <div className="flex flex-col gap-3">
+                  {authors.map((_, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <Input
+                        id={`${mode}-publisher-author-${index}`}
+                        placeholder="Author name"
+                        aria-invalid={
+                          form.formState.errors.authors?.[index]
+                            ? true
+                            : undefined
+                        }
+                        {...form.register(`authors.${index}`)}
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          if (authors.length === 1) {
+                            form.setValue("authors.0", "", {
+                              shouldDirty: true,
+                              shouldTouch: true,
+                              shouldValidate: true,
+                            });
+                            return;
+                          }
+
+                          form.setValue(
+                            "authors",
+                            authors.filter((_, authorIndex) => authorIndex !== index),
+                            {
+                              shouldDirty: true,
+                              shouldTouch: true,
+                              shouldValidate: true,
+                            },
+                          );
+                        }}
+                        aria-label="Remove author"
+                        title="Remove author"
+                      >
+                        <Trash2Icon />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
                 <FieldDescription>
-                  Save the primary author or owner label associated with this
-                  publisher.
+                  Add every author tied to this publisher record.
                 </FieldDescription>
-                <FieldError errors={[form.formState.errors.author]} />
+                <FieldError
+                  errors={[
+                    form.formState.errors.authors,
+                    ...authorFieldErrors,
+                  ]}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    form.setValue("authors", [...authors, ""], {
+                      shouldDirty: true,
+                      shouldTouch: true,
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  <PlusIcon data-icon="inline-start" />
+                  Add author
+                </Button>
               </FieldContent>
             </Field>
           </FieldGroup>

@@ -69,7 +69,12 @@ export const BooksTable = ({
                   </div>
                 </TableCell>
                 <TableCell className="whitespace-normal text-muted-foreground align-top wrap-break-word capitalize">
-                  {book.publisher.name}
+                  <div className="flex flex-col gap-1">
+                    <span>{book.publisher.name}</span>
+                    <span className="text-xs">
+                      {book.author?.name ?? book.publisher.author}
+                    </span>
+                  </div>
                 </TableCell>
                 <TableCell className="font-medium">
                   {currenctFormat(book.price)}

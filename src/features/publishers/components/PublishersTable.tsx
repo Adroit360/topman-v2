@@ -40,7 +40,7 @@ export const PublishersTable = ({
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Reference</TableHead>
-              <TableHead>Author</TableHead>
+              <TableHead>Authors</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -54,7 +54,9 @@ export const PublishersTable = ({
                   {publisher.reference}
                 </TableCell>
                 <TableCell className="text-muted-foreground capitalize">
-                  {publisher.author}
+                  {publisher.authors.length > 0
+                    ? publisher.authors.map((author) => author.name).join(", ")
+                    : publisher.author}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">

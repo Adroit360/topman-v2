@@ -27,7 +27,7 @@ export const BooksManagement = ({ books, publishers }: { books: BookRecord[]; pu
     }
 
     return books.filter((book) => {
-      const haystack = [book.title, book.publisher.name, book.publisher.author, book.level, book.type, ...book.tags].join(" ").toLowerCase();
+      const haystack = [book.title, book.publisher.name, book.author?.name ?? "", book.publisher.author, book.level, book.type, ...book.tags].join(" ").toLowerCase();
 
       return haystack.includes(normalizedSearchTerm);
     });

@@ -4,7 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { book } from "@/db/schema/book";
-import { publisher } from "@/db/schema/publisher";
+import { publisher, publisherAuthor } from "@/db/schema/publisher";
 import {
   createBookSchema,
   bookFieldNames,
@@ -54,8 +54,16 @@ export const createBook = async (input: unknown): Promise<BookActionResult> => {
   }
 
   const [matchedPublisher] = await db
-    .select({ id: publisher.id })
+    .select({ id: publisher.id, authorId: publisherAuthor.id })
     .from(publisher)
+    .innerJoin(
+      publisherAuthor,
+      and(
+        eq(publisherAuthor.publisherId, publisher.id),
+        eq(publisherAuthor.id, parsed.data.authorId),
+        isNull(publisherAuthor.deletedAt),
+      ),
+    )
     .where(
       and(
         eq(publisher.id, parsed.data.publisherId),
@@ -69,6 +77,7 @@ export const createBook = async (input: unknown): Promise<BookActionResult> => {
       message: "Choose an active publisher before saving this book.",
       fieldErrors: {
         publisherId: "Choose an active publisher.",
+        authorId: "Choose an author for this publisher.",
       },
     };
   }

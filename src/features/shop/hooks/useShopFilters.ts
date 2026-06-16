@@ -96,6 +96,7 @@ const matchesSearchTerm = (book: BookRecord, searchTerm: string) => {
   const haystack = [
     book.title,
     book.publisher.name,
+    book.author?.name ?? "",
     book.publisher.author,
     book.level,
     book.type,

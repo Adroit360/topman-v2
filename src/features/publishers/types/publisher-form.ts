@@ -1,7 +1,11 @@
 import { z } from "zod/v4";
 import type { PublisherSummary } from "@/features/catalog";
 
-export const publisherFieldNames = ["name", "reference", "author"] as const;
+export const publisherFieldNames = [
+  "name",
+  "reference",
+  "authors",
+] as const;
 
 const publisherTextField = (label: string) =>
   z
@@ -13,7 +17,26 @@ const publisherTextField = (label: string) =>
 export const publisherFormSchema = z.object({
   name: publisherTextField("Publisher name"),
   reference: publisherTextField("Reference"),
-  author: publisherTextField("Author"),
+  authors: z
+    .array(publisherTextField("Author"))
+    .min(1, "Add at least one author.")
+    .superRefine((authors, context) => {
+      const seenAuthors = new Set<string>();
+
+      authors.forEach((author, index) => {
+        const key = author.toLowerCase();
+
+        if (seenAuthors.has(key)) {
+          context.addIssue({
+            code: "custom",
+            message: "Each author for this publisher must be unique.",
+            path: [index],
+          });
+        }
+
+        seenAuthors.add(key);
+      });
+    }),
 });
 
 export const createPublisherSchema = publisherFormSchema;

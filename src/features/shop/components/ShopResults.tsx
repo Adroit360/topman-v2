@@ -15,7 +15,7 @@ const toProductListBook = (book: BookRecord): BookTypes => ({
   id: book.id,
   title: book.title,
   image: book.image,
-  author: book.publisher.author,
+  author: book.author?.name ?? book.publisher.author,
   price: book.price,
   level: book.level,
   type: book.type,
