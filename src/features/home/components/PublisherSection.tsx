@@ -29,18 +29,19 @@ export const PublisherSection = () => {
   }
 
   return (
-    <section className="px-4 pb-14 sm:px-6 sm:pb-18 lg:px-8 lg:pb-24">
+    <section className="bg-[#f5f5f7] px-4 py-16 sm:px-6 sm:py-10">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 sm:gap-12">
-        <PublisherHeader />
+        {/* <PublisherHeader /> */}
 
-        <div className="flex flex-col gap-6 lg:gap-8">
+        <div className="flex flex-col gap-10 lg:gap-18">
           {groups.map((group) => {
+            const categoryLink = group.isGeneral ? "/shop?type=Literature" : `/shop?publisher=${encodeURIComponent(group.name)}`;
             const productListBooks: BookTypes[] = group.books.map((book) => ({
               ...book,
               level: "Featured",
               type: group.isGeneral ? "Literature" : "Publisher",
               isAvailable: true,
-              image: book.image ?? "/placeholder-book.png",
+              image: book.image,
               publisher: {
                 id: group.id,
                 name: group.name,
@@ -49,12 +50,8 @@ export const PublisherSection = () => {
             }));
 
             return (
-              <section
-                key={group.id}
-                className="flex flex-col gap-5 shadow-sm"
-                aria-label={`${group.name} books`}
-              >
-                <CategorySectionHeader title={group.name} link="#" />
+              <section key={group.id} className="flex flex-col" aria-label={`${group.name} books`}>
+                <CategorySectionHeader title={group.name} link={categoryLink} />
 
                 <ProductList books={productListBooks} desktopColumns={4} />
               </section>

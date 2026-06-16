@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BookOpen, User } from "lucide-react";
+import Image from "next/image";
+import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartButton } from "./CartButton";
 import { MobileMenu } from "./MobileMenu";
@@ -11,45 +12,18 @@ type NavbarProps = {
   cartHref?: string;
 };
 
-export const Navbar = ({
-  accountHref,
-  accountLabel = "Login",
-  cartHref = "/cart",
-}: NavbarProps) => {
+export const Navbar = ({ accountHref, accountLabel = "Login", cartHref = "/cart" }: NavbarProps) => {
   return (
     <header className="fixed inset-x-0 top-4 z-50 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto flex w-full max-w-7xl items-center gap-3 rounded-3xl border border-border bg-background/95 px-3 py-2.5 shadow-sm backdrop-blur supports-backdrop-filter:bg-background/80 sm:gap-4 sm:px-4 sm:py-3">
-        <Link
-          href="/"
-          className="min-w-0 flex items-center gap-2 rounded-full px-1 py-1 text-foreground transition-colors hover:text-foreground/80 sm:gap-3"
-          aria-label="Topman Bookshop home"
-        >
-          <span className="flex size-9 items-center justify-center rounded-full border border-border bg-muted text-foreground sm:size-10">
-            <BookOpen />
-          </span>
-
-          <span className="flex min-w-0 flex-col">
-            <span className="truncate text-[10px] font-medium tracking-[0.18em] text-muted-foreground uppercase sm:text-sm">
-              Topman
-            </span>
-            <span className="truncate text-sm font-semibold tracking-tight sm:text-base">
-              Bookshop
-            </span>
-          </span>
+        <Link href="/" className="flex min-w-0 items-center rounded-full transition-opacity hover:opacity-90" aria-label="Topman Books home">
+          <Image src="/images/topmanlogo.png" alt="Topman Books" width={320} height={140} priority className="h-12 w-auto sm:h-14   " />
         </Link>
 
-        <nav
-          aria-label="Primary navigation"
-          className="hidden flex-1 items-center justify-center md:flex"
-        >
+        <nav aria-label="Primary navigation" className="hidden flex-1 items-center justify-center md:flex">
           <div className="flex items-center gap-1 p-1">
             {navbarLinks.map((link) => (
-              <Button
-                key={link.href}
-                variant="ghost"
-                className="px-4 text-md"
-                asChild
-              >
+              <Button key={link.href} variant="ghost" className="px-4 text-md" asChild>
                 <Link href={link.href}>{link.label}</Link>
               </Button>
             ))}
@@ -60,7 +34,7 @@ export const Navbar = ({
           <CartButton cartHref={cartHref} />
 
           {accountHref ? (
-            <Button variant="default" asChild>
+            <Button variant="default" asChild className=" bg-orange-600">
               <Link href={accountHref}>
                 <User data-icon="inline-start" />
                 {accountLabel}
@@ -70,12 +44,7 @@ export const Navbar = ({
         </div>
 
         <div className="ml-auto md:hidden">
-          <MobileMenu
-            links={navbarLinks}
-            cartHref={cartHref}
-            accountHref={accountHref}
-            accountLabel={accountLabel}
-          />
+          <MobileMenu links={navbarLinks} cartHref={cartHref} accountHref={accountHref} accountLabel={accountLabel} />
         </div>
       </div>
     </header>

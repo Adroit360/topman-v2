@@ -5,18 +5,11 @@ import type { CatalogContextValue, CatalogData } from "../types/catalog";
 
 const CatalogContext = createContext<CatalogContextValue | null>(null);
 
-export const useCatalogState = ({
-  books,
-  publishers,
-}: CatalogData): CatalogContextValue => {
+export const useCatalogState = ({ books, publishers }: CatalogData): CatalogContextValue => {
   const [catalogBooks, setCatalogBooks] = useState(books);
   const [catalogPublishers, setCatalogPublishers] = useState(publishers);
 
-  const publishersById = useMemo(
-    () =>
-      new Map(catalogPublishers.map((publisher) => [publisher.id, publisher])),
-    [catalogPublishers],
-  );
+  const publishersById = useMemo(() => new Map(catalogPublishers.map((publisher) => [publisher.id, publisher])), [catalogPublishers]);
 
   return {
     books: catalogBooks,

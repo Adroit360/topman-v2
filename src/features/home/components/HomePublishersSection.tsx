@@ -6,16 +6,11 @@ type HomePublishersSectionProps = {
   catalogPromise: Promise<CatalogData>;
 };
 
-export const HomePublishersSection = async ({
-  catalogPromise,
-}: HomePublishersSectionProps) => {
+export const HomePublishersSection = async ({ catalogPromise }: HomePublishersSectionProps) => {
   const catalog = await catalogPromise;
 
   return (
-    <CatalogProvider
-      initialBooks={catalog.books}
-      initialPublishers={catalog.publishers}
-    >
+    <CatalogProvider initialBooks={catalog.books} initialPublishers={catalog.publishers}>
       <PublisherSection />
     </CatalogProvider>
   );

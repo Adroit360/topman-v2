@@ -1,17 +1,8 @@
 export default function PublisherHeader() {
   return (
-    <div className="flex max-w-3xl flex-col gap-4">
-      <p className="text-xs font-medium tracking-[0.24em] text-muted-foreground uppercase">
-        Publisher shelves
-      </p>
-      <h2 className="text-balance text-3xl font-semibold tracking-[-0.05em] text-foreground sm:text-4xl">
-        Browse a focused selection of publishers and the books readers reach for
-        most.
-      </h2>
-      <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
-        Each shelf highlights four standout books, with a final literature row
-        gathering curated reading picks from across the wider catalog.
-      </p>
+    <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
+      <h2 className="text-balance text-2xl font-semibold leading-tight text-slate-950 sm:text-4xl">Publisher shelves made easy to browse.</h2>
+      <p className="max-w-2xl text-base leading-7 text-slate-500 ">Each shelf highlights four standout books, with a final literature row gathering curated reading picks from across the wider catalog.</p>
     </div>
   );
 }

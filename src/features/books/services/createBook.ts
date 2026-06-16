@@ -54,7 +54,7 @@ export const createBook = async (input: unknown): Promise<BookActionResult> => {
   }
 
   const [matchedPublisher] = await db
-    .select({ id: publisher.id, name: publisher.name })
+    .select({ id: publisher.id })
     .from(publisher)
     .where(
       and(
@@ -76,7 +76,7 @@ export const createBook = async (input: unknown): Promise<BookActionResult> => {
   try {
     const [createdBook] = await db
       .insert(book)
-      .values(toBookInsertValues(parsed.data, matchedPublisher.name))
+      .values(toBookInsertValues(parsed.data))
       .$returningId();
 
     revalidatePath("/dashboard");
