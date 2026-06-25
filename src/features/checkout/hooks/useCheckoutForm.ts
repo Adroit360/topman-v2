@@ -14,6 +14,7 @@ import {
   type CheckoutPaymentSession,
   type CreateCheckoutOrderResult,
 } from "../types/checkout";
+import { formatPaymentGateway } from "../types/payment-gateway";
 
 const mapFieldErrors = (
   result: Pick<CreateCheckoutOrderResult, "fieldErrors">,
@@ -107,7 +108,7 @@ export const useCheckoutForm = () => {
       setPendingPayment(checkoutOrder.data);
       setResult({
         success: true,
-        message: "Redirecting to the Paystack payment page.",
+        message: `Redirecting to the ${formatPaymentGateway(checkoutOrder.data.gateway)} payment page.`,
       });
       redirectToPaymentPage(checkoutOrder.data.authorizationUrl);
     });

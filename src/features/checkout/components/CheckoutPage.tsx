@@ -10,7 +10,7 @@ export const CheckoutPage = () => {
     <section className="pb-16 pt-8 sm:pt-10 lg:pb-24">
       <SectionBread
         title="Checkout"
-        description="Confirm your delivery details, review the 2% processing fee, and complete payment securely with Paystack."
+        description="Confirm your delivery details, review the 2% processing fee, and complete payment securely online."
         bread={[]}
       />
 
@@ -26,7 +26,7 @@ export const CheckoutPage = () => {
 
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/20 px-4 py-2 text-sm text-muted-foreground">
               <ShieldCheck className="size-4" />
-              Secure checkout powered by Paystack
+              Secure online checkout
             </div>
           </div>
 

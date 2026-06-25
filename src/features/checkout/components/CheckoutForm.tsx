@@ -42,7 +42,7 @@ export const CheckoutForm = () => {
         </CardTitle>
         <CardDescription className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
           Add your delivery and contact details, then continue to the secure
-          Paystack payment page.
+          payment page.
         </CardDescription>
       </CardHeader>
 
@@ -158,7 +158,7 @@ export const CheckoutForm = () => {
               {isPending
                 ? "Preparing payment..."
                 : pendingPayment
-                  ? "Resume Paystack Payment"
+                  ? "Resume Payment"
                   : "Pay Now"}
             </Button>
             {pendingPayment ? (

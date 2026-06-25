@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import type { PaymentGateway } from "./payment-gateway";
 
 export const checkoutFieldNames = [
   "name",
@@ -51,6 +52,7 @@ export type CheckoutActionState = {
 export type CheckoutPaymentSession = {
   orderId: string;
   reference: string;
+  gateway: PaymentGateway;
   email: string;
   amountMinor: number;
   customerName: string;

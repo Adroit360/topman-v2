@@ -2,15 +2,20 @@
 
 import { headers } from "next/headers";
 import { inArray } from "drizzle-orm";
-import { env } from "../../../../data/env";
 import { db } from "@/db";
 import { book, order, orderItems } from "@/db/schema";
 import { calculateCheckoutPricing } from "./checkoutPricing";
+import { getActivePaymentGateway } from "./paymentGatewaySettings";
+import { initializePayment } from "./paymentProviders";
 import {
   checkoutFieldNames,
   checkoutServerSchema,
   type CreateCheckoutOrderResult,
 } from "../types/checkout";
+import {
+  paymentGatewayValues,
+  type PaymentGateway,
+} from "../types/payment-gateway";
 
 const toFieldErrors = (
   error: unknown,
@@ -48,20 +53,25 @@ const toFieldErrors = (
   return fieldErrors;
 };
 
-const createPaymentReference = () => {
+const createPaystackPaymentReference = () => {
   const suffix = crypto.randomUUID().slice(0, 8);
 
   return `topman_${Date.now()}_${suffix}`;
 };
 
-type PaystackInitializeResponse = {
-  status: boolean;
-  message: string;
-  data?: {
-    authorization_url?: string;
-    access_code?: string;
-    reference?: string;
-  };
+const createHubtelPaymentReference = () => {
+  const timestamp = Date.now().toString(36);
+  const suffix = crypto.randomUUID().replaceAll("-", "").slice(0, 8);
+
+  return `tm_${timestamp}_${suffix}`;
+};
+
+const createPaymentReference = (gateway: PaymentGateway) => {
+  if (gateway === paymentGatewayValues.hubtel) {
+    return createHubtelPaymentReference();
+  }
+
+  return createPaystackPaymentReference();
 };
 
 export const createCheckoutOrder = async (
@@ -130,11 +140,10 @@ export const createCheckoutOrder = async (
 
     const pricing = calculateCheckoutPricing(subtotal);
     const orderId = crypto.randomUUID();
-    const reference = createPaymentReference();
+    const paymentGateway = await getActivePaymentGateway();
+    const reference = createPaymentReference(paymentGateway);
     const forwardedFor = (await headers()).get("x-forwarded-for");
     const ipAddress = forwardedFor?.split(",")[0]?.trim() ?? null;
-    const callbackUrl = new URL("/checkout/success", env.BETTER_AUTH_URL);
-    callbackUrl.searchParams.set("orderId", orderId);
 
     await db.transaction(async (tx) => {
       await tx.insert(order).values({
@@ -149,6 +158,7 @@ export const createCheckoutOrder = async (
         notes,
         deliveryCost: 0,
         paymentReference: reference,
+        paymentGateway,
         ipAddress,
       });
 
@@ -162,53 +172,16 @@ export const createCheckoutOrder = async (
       );
     });
 
-    const paystackResponse = await fetch(
-      "https://api.paystack.co/transaction/initialize",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${env.PAYSTACK_SECRET_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          amount: pricing.totalMinor,
-          reference,
-          currency: "GHS",
-          callback_url: callbackUrl.toString(),
-          metadata: {
-            orderId,
-            customerName: name,
-            customerPhone: phone,
-          },
-        }),
-        cache: "no-store",
-      },
-    );
-
-    const paystackPayload =
-      (await paystackResponse.json()) as PaystackInitializeResponse;
-
-    if (!paystackResponse.ok) {
-      return {
-        success: false,
-        message:
-          paystackPayload.message ||
-          "We could not connect to Paystack right now. Please try again.",
-      };
-    }
-
-    const authorizationUrl =
-      paystackPayload.data?.authorization_url?.trim() ?? "";
-
-    if (!paystackPayload.status || !authorizationUrl) {
-      return {
-        success: false,
-        message:
-          paystackPayload.message ||
-          "We could not start your payment session right now. Please try again.",
-      };
-    }
+    const paymentSession = await initializePayment({
+      gateway: paymentGateway,
+      orderId,
+      reference,
+      email,
+      amountMinor: pricing.totalMinor,
+      amountDisplay: pricing.totalAmount,
+      customerName: name,
+      customerPhone: phone,
+    });
 
     return {
       success: true,
@@ -216,17 +189,21 @@ export const createCheckoutOrder = async (
       data: {
         orderId,
         reference,
+        gateway: paymentGateway,
         email,
         amountMinor: pricing.totalMinor,
         customerName: name,
         customerPhone: phone,
-        authorizationUrl,
+        authorizationUrl: paymentSession.authorizationUrl,
       },
     };
-  } catch {
+  } catch (error) {
     return {
       success: false,
-      message: "We could not start checkout right now. Please try again.",
+      message:
+        error instanceof Error && error.message
+          ? error.message
+          : "We could not start checkout right now. Please try again.",
     };
   }
 };

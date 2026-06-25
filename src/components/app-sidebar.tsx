@@ -109,6 +109,10 @@ const data = {
           title: "Payment Receipts",
           url: "/dashboard/payments",
         },
+        {
+          title: "Payment Settings",
+          url: "/dashboard/settings/payments",
+        },
       ],
     },
     {

@@ -26,6 +26,7 @@ export const order = table("orders", {
   serialNumber: int().notNull().unique().autoincrement(),
   paymentStatus: int().notNull().default(0),
   paymentReference: varchar({ length: 255 }),
+  paymentGateway: varchar({ length: 32 }).notNull().default("paystack"),
   datePaid: varchar({ length: 255 }),
   ipAddress: varchar({ length: 255 }),
   createdAt,
@@ -48,9 +49,17 @@ export const orderItems = table("order_items", {
 export const orderPayment = table("order_payments", {
   id,
   reference: varchar({ length: 255 }).notNull(),
+  paymentGateway: varchar({ length: 32 }).notNull().default("paystack"),
   orderId: varchar({ length: 191 })
     .notNull()
     .references(() => order.id),
+  createdAt,
+  updatedAt,
+});
+
+export const paymentGatewaySetting = table("payment_gateway_settings", {
+  id,
+  gateway: varchar({ length: 32 }).notNull().default("paystack"),
   createdAt,
   updatedAt,
 });
